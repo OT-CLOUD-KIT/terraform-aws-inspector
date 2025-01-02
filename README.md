@@ -5,8 +5,8 @@ This repository contains Terraform modules for configuring both AWS Inspector Cl
 ## Table of Contents
 - [Modules](#modules)
 - [Variables](#variables)
-  - [Inputs](#inputs)
-  - [Outputs](#outputs)
+- [Inputs](#inputs)
+- [Outputs](#outputs)
 - [Provider Version Constraints](#provider-version-constraints)
 - [Usage](#usage)
 
@@ -75,7 +75,7 @@ No outputs are defined in the AWS Inspector 2 module.
 Below are example configurations for using the modules:
 
 ### AWS Inspector Classic
-```hcl
+
 module "aws_inspector_classic" {
   source              = "./modules/aws_inspector_classic"
   aws_inspector_classic_enable = true
@@ -83,10 +83,9 @@ module "aws_inspector_classic" {
   event               = "ASSESSMENT_RUN_STARTED"
   duration            = 3600
 }
-```
+
 
 ### AWS Inspector 2
-```hcl
 module "aws_inspector_2" {
   source                             = "./modules/aws_inspector_2"
   aws_inspector_2_enable             = true
@@ -100,7 +99,7 @@ module "aws_inspector_2" {
   enable_account_associate           = true
   account_associate                  = 123456789012
 }
-```
+
 
 ---
 
