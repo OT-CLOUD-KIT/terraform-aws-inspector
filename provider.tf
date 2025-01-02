@@ -1,12 +1,6 @@
 provider "aws" {
-    region = var.aws_region
+  region = var.aws_region
   assume_role {
-    role_arn = var.Terraform_role
+    role_arn = var.aws_terraform_role
   }
 }
-
-/*provider "aws" {
-  region = "us-east-1"
-  access_key = ""
-  secret_key = ""
-}*/

@@ -1,126 +1,108 @@
-# AWS Inspector Modules
+# AWS Inspector Terraform Modules
 
-This configuration provides an example of using two modules: `aws_inspector_classic` and `aws_inspector_2`. Each module enables and configures AWS Inspector services depending on the specified variables.
+This repository contains Terraform modules for configuring both AWS Inspector Classic and AWS Inspector 2. The modules are designed to simplify the setup and management of Amazon Inspector resources in your AWS account.
+
+## Table of Contents
+- [Modules](#modules)
+- [Variables](#variables)
+  - [Inputs](#inputs)
+  - [Outputs](#outputs)
+- [Provider Version Constraints](#provider-version-constraints)
+- [Usage](#usage)
+
+---
 
 ## Modules
 
-### 1. **AWS Inspector Classic**
-This module configures AWS Inspector Classic based on the provided input variables.
+### AWS Inspector Classic
+The module for AWS Inspector Classic requires you to manually start assessments from the AWS Management Console. It creates resources such as assessment targets and templates for EC2 instances tagged according to the provided resource group tags.
 
-#### Variables:
-- **`aws_inspector_classic_enable`** (Boolean):
-  - Determines whether the `aws_inspector_classic` module is enabled.
-  - Default: `true`
+### AWS Inspector 2
+The module for AWS Inspector 2 enables delegation of administrative access, member account configuration, and auto-enablement for selected resource types.
 
-- **`resource_group_tags`** (Map):
-  - Tags to be applied to the resource group created for AWS Inspector Classic.
-  - Default: `{}`
+---
 
-- **`event`** (String):
-  - Event details for the AWS Inspector Classic.
-  - Allowed values: `ASSESSMENT_RUN_STARTED`, `ASSESSMENT_RUN_COMPLETED`, `ASSESSMENT_RUN_STATE_CHANGED`, `FINDING_REPORTED`
-  - Default: `ASSESSMENT_RUN_STARTED`
+## Variables
 
-- **`duration`** (Number):
-  - Duration for which the AWS Inspector Classic assessment will run (in seconds).
-  - Default: `3600`
+### Inputs for AWS Inspector Classic
 
-### 2. **AWS Inspector 2**
-This module configures AWS Inspector 2 based on the provided input variables.
+| Name                | Type        | Default        | Description                                                         |
+|---------------------|-------------|----------------|---------------------------------------------------------------------|
+| `aws_inspector_classic_enable` | `bool`      | `false`       | Enable AWS Inspector Classic module.                                |
+| `resource_group_tags` | `map(string)` | `{}`         | Tags for grouping resources in AWS Inspector Classic.               |
+| `duration`          | `number`    | `3600`         | Duration (in seconds) for assessments in AWS Inspector Classic.     |
+| `event`             | `string`    | `ASSESSMENT_RUN_STARTED` | Event type for SNS notifications in AWS Inspector Classic.          |
 
-#### Variables:
-- **`aws_inspector_2_enable`** (String):
-  - Determines whether the `aws_inspector_2` module is enabled.
-  - Default: `true`
+### Inputs for AWS Inspector 2
 
-- **`enabled_resources`** (List):
-  - List of resource ARNs to enable for AWS Inspector 2.
-  - Allowed values: `EC2`, `ECR`, `LAMBDA`, `LAMBDA_CODE`
-  - Default: `["EC2", "ECR", "LAMBDA", "LAMBDA_CODE"]`
+| Name                                | Type        | Default                                | Description                                                         |
+|-------------------------------------|-------------|----------------------------------------|---------------------------------------------------------------------|
+| `aws_inspector_2_enable`           | `string`    | `true`                                | Enable AWS Inspector 2 module.                                      |
+| `enabled_resources_admin_account`  | `list(string)` | `["EC2", "ECR", "LAMBDA", "LAMBDA_CODE"]` | Resources enabled for the admin account in AWS Inspector 2.         |
+| `enabled_resources_member_account` | `list(string)` | `["EC2", "ECR", "LAMBDA", "LAMBDA_CODE"]` | Resources enabled for member accounts in AWS Inspector 2.           |
+| `auto_enable`                      | `list(string)` | `["EC2", "ECR", "LAMBDA", "LAMBDA_CODE"]` | Resources to auto-enable in AWS Inspector 2.                        |
+| `auto_enable_member_accounts`      | `bool`      | `false`                               | Auto-enable resources for member accounts.                          |
+| `enable_delegated_admin_account`   | `bool`      | `false`                               | Enable AWS Inspector 2 for the admin account.                       |
+| `member_accounts`                  | `list(string)` | `[]`                                 | List of member account IDs.                                         |
+| `account_associate`                | `number`    | `null`                                | ID of the account to associate.                                     |
+| `enable_account_associate`         | `bool`      | `false`                               | Enable account association in AWS Inspector 2.                      |
+| `enable_member_accounts`           | `bool`      | `false`                               | Enable AWS Inspector 2 for member accounts.                         |
+| `initialize_delegated_admin_account`| `bool`     | `false`                               | Enable delegation of admin accounts in AWS Inspector 2.             |
 
-- **`auto_enable`** (List):
-  - Resources to be auto-enabled for AWS Inspector 2.
-  - Allowed values: `EC2`, `ECR`, `LAMBDA`, `LAMBDA_CODE`
-  - Default: `["EC2", "ECR", "LAMBDA", "LAMBDA_CODE"]`
+### Outputs
 
-- **`enable_delegated_admin_account`** (Boolean):
-  - Enables the configuration of a delegated admin account for AWS Inspector 2.
-  - Default: `true`
+#### Outputs for AWS Inspector Classic
 
-- **`member_accounts`** (List):
-  - List of member account IDs to include in the AWS Inspector 2 configuration.
-  - Default: `[]`
+No outputs are defined in the AWS Inspector Classic module.
 
-- **`admin_account_associate`** (Number):
-  - Value of the admin account to associate with AWS Inspector 2.
-  - Default: `null`
+#### Outputs for AWS Inspector 2
 
-- **`enable_member_accounts`** (Boolean):
-  - Enables member accounts for AWS Inspector 2.
-  - Default: `false`
+No outputs are defined in the AWS Inspector 2 module.
 
-- **`initialize_delegated_admin_account`** (Boolean):
-  - Determines if the delegated admin account should be initialized for AWS Inspector 2.
-  - Default: `false`
+---
 
-### Common Variables
+## Provider Version Constraints
 
-- **`aws_region`** (String):
-  - AWS region selected for deployment.
-  - Default: `ap-south-1`
+| Provider Name       | Version Constraint | Current Version |
+| ------------------- | ------------------ | --------------- |
+| `aws`              | `>= 5.0.0`         | `5.82.0`        |
+| `terraform`        | `>= 1.5.0`         | `1.9.6`         |
 
-- **`aws_terraform_role`** (String):
-  - ARN of the AWS role to assume for Terraform operations.
-  - Must start with `arn`.
-
-- **`terraform_session`** (String):
-  - Session name for Terraform AWS provider.
+---
 
 ## Usage
 
-### Enabling AWS Inspector Classic
-To enable AWS Inspector Classic, set the `aws_inspector_classic_enable` variable to `true`. Example:
+Below are example configurations for using the modules:
 
-```hcl
-variable "aws_inspector_classic_enable" {
-  default = true
-}
-```
-
-### Enabling AWS Inspector 2
-To enable AWS Inspector 2, set the `aws_inspector_2_enable` variable to `true`. Example:
-
-```hcl
-variable "aws_inspector_2_enable" {
-  default = true
-}
-```
-
-### Example Implementation
+### AWS Inspector Classic
 ```hcl
 module "aws_inspector_classic" {
-  count               = var.aws_inspector_classic_enable == true ? 1 : 0
   source              = "./modules/aws_inspector_classic"
+  aws_inspector_classic_enable = true
   resource_group_tags = { "Name" = "Inspector_check" }
-  event               = var.event
-  duration            = var.duration
-}
-
-module "aws_inspector_2" {
-  count                              = var.aws_inspector_2_enable == true ? 1 : 0
-  source                             = "./modules/aws_inspector_2"
-  enabled_resources                  = var.enabled_resources
-  auto_enable                        = var.auto_enable
-  enable_delegated_admin_account     = var.enable_delegated_admin_account
-  member_accounts                    = var.member_accounts
-  admin_account_associate            = var.admin_account_associate
-  enable_member_accounts             = var.enable_member_accounts
-  initialize_delegated_admin_account = var.initialize_delegated_admin_account
+  event               = "ASSESSMENT_RUN_STARTED"
+  duration            = 3600
 }
 ```
 
-## Notes
-- Ensure the necessary permissions are in place for the modules to create and configure AWS Inspector services.
-- Review the variables and set appropriate values before applying the configuration.
-- Use `terraform plan` to preview changes before applying them.
+### AWS Inspector 2
+```hcl
+module "aws_inspector_2" {
+  source                             = "./modules/aws_inspector_2"
+  aws_inspector_2_enable             = true
+  initialize_delegated_admin_account = true
+  enable_delegated_admin_account     = true
+  enabled_resources_admin_account    = ["EC2", "ECR", "LAMBDA", "LAMBDA_CODE"]
+  enable_member_accounts             = true
+  member_accounts                    = ["123456789012", "987654321098"]
+  enabled_resources_member_account   = ["EC2", "ECR", "LAMBDA"]
+  auto_enable                        = ["EC2", "ECR"]
+  enable_account_associate           = true
+  account_associate                  = 123456789012
+}
+```
+
+---
+
+For more information on configuring Amazon Inspector, refer to the [AWS Documentation](https://docs.aws.amazon.com/inspector/latest/userguide/).
 

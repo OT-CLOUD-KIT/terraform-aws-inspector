@@ -10,8 +10,8 @@ variable "event" {
 }
 
 variable "resource_group_tags" {
-  type = map(string)
-  default = {}
-  description = "Tag values required to group your resources given to the resource group."  
+  type        = map(string)
+  default     = {}
+  description = "Tag values required to group your resources given to the resource group."
 }
 
