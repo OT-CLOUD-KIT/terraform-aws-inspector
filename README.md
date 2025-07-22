@@ -1,107 +1,96 @@
-# AWS Inspector Terraform Modules
+# Terraform AWS Inspector 2
 
-This repository contains Terraform modules for configuring both AWS Inspector Classic and AWS Inspector 2. The modules are designed to simplify the setup and management of Amazon Inspector resources in your AWS account.
-
-## Table of Contents
-- [Modules](#modules)
-- [Variables](#variables)
-- [Inputs](#inputs)
-- [Outputs](#outputs)
-- [Provider Version Constraints](#provider-version-constraints)
-- [Usage](#usage)
+A Terraform module to configure **Amazon Inspector 2** for continuous vulnerability scanning across AWS workloads. Supports EC2, ECR, and Lambda scanning in single-account or organization setups.
 
 ---
 
-## Modules
+## Architecture
 
-### AWS Inspector Classic
-The module for AWS Inspector Classic requires you to manually start assessments from the AWS Management Console. It creates resources such as assessment targets and templates for EC2 instances tagged according to the provided resource group tags.
 
-### AWS Inspector 2
-The module for AWS Inspector 2 enables delegation of administrative access, member account configuration, and auto-enablement for selected resource types.
+> **Note:**  
+> The diagram above represents a basic Inspector 2 setup. This module supports advanced configurations such as delegated admin setup, member account scanning, and organization-wide auto-enable features.
 
 ---
 
-## Variables
 
-### Inputs for AWS Inspector Classic
+## Providers
 
-| Name                | Type        | Default        | Description                                                         |
-|---------------------|-------------|----------------|---------------------------------------------------------------------|
-| `aws_inspector_classic_enable` | `bool`      | `false`       | Enable AWS Inspector Classic module.                                |
-| `resource_group_tags` | `map(string)` | `{}`         | Tags for grouping resources in AWS Inspector Classic.               |
-| `duration`          | `number`    | `3600`         | Duration (in seconds) for assessments in AWS Inspector Classic.     |
-| `event`             | `string`    | `ASSESSMENT_RUN_STARTED` | Event type for SNS notifications in AWS Inspector Classic.          |
+| Name                                              | Version  |
+|---------------------------------------------------|----------|
+| <a name="provider_aws"></a> [aws](#provider\_aws) | 5.82.2   |
+| <a name="terraform_module"></a> [Terraform](Terraform\module) | >= 1.12.1|
 
-### Inputs for AWS Inspector 2
-
-| Name                                | Type        | Default                                | Description                                                         |
-|-------------------------------------|-------------|----------------------------------------|---------------------------------------------------------------------|
-| `aws_inspector_2_enable`           | `string`    | `true`                                | Enable AWS Inspector 2 module.                                      |
-| `enabled_resources_admin_account`  | `list(string)` | `["EC2", "ECR", "LAMBDA", "LAMBDA_CODE"]` | Resources enabled for the admin account in AWS Inspector 2.         |
-| `enabled_resources_member_account` | `list(string)` | `["EC2", "ECR", "LAMBDA", "LAMBDA_CODE"]` | Resources enabled for member accounts in AWS Inspector 2.           |
-| `auto_enable`                      | `list(string)` | `["EC2", "ECR", "LAMBDA", "LAMBDA_CODE"]` | Resources to auto-enable in AWS Inspector 2.                        |
-| `auto_enable_member_accounts`      | `bool`      | `false`                               | Auto-enable resources for member accounts.                          |
-| `enable_delegated_admin_account`   | `bool`      | `false`                               | Enable AWS Inspector 2 for the admin account.                       |
-| `member_accounts`                  | `list(string)` | `[]`                                 | List of member account IDs.                                         |
-| `account_associate`                | `number`    | `null`                                | ID of the account to associate.                                     |
-| `enable_account_associate`         | `bool`      | `false`                               | Enable account association in AWS Inspector 2.                      |
-| `enable_member_accounts`           | `bool`      | `false`                               | Enable AWS Inspector 2 for member accounts.                         |
-| `initialize_delegated_admin_account`| `bool`     | `false`                               | Enable delegation of admin accounts in AWS Inspector 2.             |
-
-### Outputs
-
-#### Outputs for AWS Inspector Classic
-
-No outputs are defined in the AWS Inspector Classic module.
-
-#### Outputs for AWS Inspector 2
-
-No outputs are defined in the AWS Inspector 2 module.
-
----
-
-## Provider Version Constraints
-
-| Provider Name       | Version Constraint | Current Version |
-| ------------------- | ------------------ | --------------- |
-| `aws`              | `>= 5.0.0`         | `5.82.0`        |
-| `terraform`        | `>= 1.5.0`         | `1.9.6`         |
-
----
+___
 
 ## Usage
 
-Below are example configurations for using the modules:
-
-### AWS Inspector Classic
-
-module "aws_inspector_classic" {
-  source              = "./modules/aws_inspector_classic"
-  aws_inspector_classic_enable = true
-  resource_group_tags = { "Name" = "Inspector_check" }
-  event               = "ASSESSMENT_RUN_STARTED"
-  duration            = 3600
-}
-
-
-### AWS Inspector 2
 module "aws_inspector_2" {
-  source                             = "./modules/aws_inspector_2"
-  aws_inspector_2_enable             = true
-  initialize_delegated_admin_account = true
-  enable_delegated_admin_account     = true
-  enabled_resources_admin_account    = ["EC2", "ECR", "LAMBDA", "LAMBDA_CODE"]
-  enable_member_accounts             = true
-  member_accounts                    = ["123456789012", "987654321098"]
-  enabled_resources_member_account   = ["EC2", "ECR", "LAMBDA"]
-  auto_enable                        = ["EC2", "ECR"]
-  enable_account_associate           = true
-  account_associate                  = 123456789012
+  source = "OT-CLOUD-KIT/terraform-aws-inspector"
+
+  aws_inspector_2_enable           = true
+  enabled_resources_admin_account  = ["EC2", "ECR"]
+
+  initialize_delegated_admin_account = false
+  enable_delegated_admin_account     = false
+
+  enable_member_accounts           = false
+  member_accounts                  = []
+  enabled_resources_member_account = []
+
+  auto_enable                 = []
+  auto_enable_member_accounts = false
+
+  enable_account_associate = false
+  account_associate        = null
 }
 
 
----
+ ## Resources
+| Name                                                                                                                                                              | Type        |
+| ----------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------- |
+| [aws\_caller\_identity](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/caller_identity)                                           | Data Source |
+| [aws\_inspector2\_delegated\_admin\_account](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/inspector2_delegated_admin_account)      | Resource    |
+| [aws\_inspector2\_enabler](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/inspector2_enabler)                                        | Resource    |
+| [aws\_inspector2\_organization\_configuration](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/inspector2_organization_configuration) | Resource    |
+| [aws\_inspector2\_member\_association](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/inspector2_member_association)                 | Resource    |
 
-For more information on configuring Amazon Inspector, refer to the [AWS Documentation](https://docs.aws.amazon.com/inspector/latest/userguide/).
+
+___
+
+## Input
+
+| Name                                                                                                                                       | Description                                                                                                      | Type           | Default          | Required |
+| ------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------- | -------------- | ---------------- | :------: |
+| <a name="input_aws_region"></a> [aws\_region](#input_aws_region)                                                                           | AWS region where Inspector 2 will be configured                                                                  | `string`       | `"us-east-1"`    |    no    |
+| <a name="input_aws_inspector_2_enable"></a> [aws\_inspector\_2\_enable](#input_aws_inspector_2_enable)                                     | Whether to enable Inspector 2 for the current account                                                            | `bool`         | `true`           |    no    |
+| <a name="input_enabled_resources_admin_account"></a> [enabled\_resources\_admin\_account](#input_enabled_resources_admin_account)          | List of resource types (e.g., EC2, ECR) to enable in the admin account                                           | `list(string)` | `["EC2", "ECR"]` |    no    |
+| <a name="input_initialize_delegated_admin_account"></a> [initialize\_delegated\_admin\_account](#input_initialize_delegated_admin_account) | Whether to initialize this account as the delegated admin                                                        | `bool`         | `false`          |    no    |
+| <a name="input_enable_delegated_admin_account"></a> [enable\_delegated\_admin\_account](#input_enable_delegated_admin_account)             | Whether to enable a delegated admin account                                                                      | `bool`         | `false`          |    no    |
+| <a name="input_enable_member_accounts"></a> [enable\_member\_accounts](#input_enable_member_accounts)                                      | Whether to enable Inspector 2 for member accounts                                                                | `bool`         | `false`          |    no    |
+| <a name="input_member_accounts"></a> [member\_accounts](#input_member_accounts)                                                            | List of AWS account IDs to enable Inspector 2 for as members                                                     | `list(string)` | `[]`             |    no    |
+| <a name="input_enabled_resources_member_account"></a> [enabled\_resources\_member\_account](#input_enabled_resources_member_account)       | List of resource types (e.g., EC2, ECR) to enable in member accounts                                             | `list(string)` | `[]`             |    no    |
+| <a name="input_auto_enable"></a> [auto\_enable](#input_auto_enable)                                                                        | List of resource types to automatically enable for future member accounts (e.g., EC2, ECR, LAMBDA, LAMBDA\_CODE) | `list(string)` | `[]`             |    no    |
+| <a name="input_auto_enable_member_accounts"></a> [auto\_enable\_member\_accounts](#input_auto_enable_member_accounts)                      | Whether to enable Inspector 2 by default for all new member accounts                                             | `bool`         | `false`          |    no    |
+| <a name="input_enable_account_associate"></a> [enable\_account\_associate](#input_enable_account_associate)                                | Whether to associate a single member account manually                                                            | `bool`         | `false`          |    no    |
+| <a name="input_account_associate"></a> [account\_associate](#input_account_associate)                                                      | AWS Account ID to manually associate as a member                                                                 | `string`       | `null`           |    no    |
+
+___
+
+## Output
+
+| Name                                                                                                                       | Description                                                       |
+| -------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
+| <a name="output_inspector_enabled_admin_ids"></a> [inspector\_enabled\_admin\_ids](#output_inspector_enabled_admin_ids)    | IDs of the resources enabled for Inspector 2 in the admin account |
+| <a name="output_inspector_enabled_member_ids"></a> [inspector\_enabled\_member\_ids](#output_inspector_enabled_member_ids) | IDs of the resources enabled for Inspector 2 in member accounts   |
+| <a name="output_delegated_admin_id"></a> [delegated\_admin\_id](#output_delegated_admin_id)                                | Account ID of the delegated administrator                         |
+| <a name="output_organization_auto_enabled"></a> [organization\_auto\_enabled](#output_organization_auto_enabled)           | Inspector 2 organization-level auto-enable configuration          |
+| <a name="output_associated_member_account_id"></a> [associated\_member\_account\_id](#output_associated_member_account_id) | ID of the manually associated member account                      |
+| <a name="output_caller_account"></a> [caller\_account](#output_caller_account)                                             | Account ID of the caller using this module                        |
+
+___
+
+## Contributors
+
+- [Piyush Upadhyay](https://github.com/piiiyuushh)
+- [Nikita Joshi](https://github.com/jnikita19)
 
