@@ -6,6 +6,7 @@ A Terraform module to configure **Amazon Inspector 2** for continuous vulnerabil
 
 ## Architecture
 
+![Inspectore2](https://github.com/user-attachments/assets/28be3167-e1a4-47e5-91fa-5f333df2607f)
 
 > **Note:**  
 > The diagram above represents a basic Inspector 2 setup. This module supports advanced configurations such as delegated admin setup, member account scanning, and organization-wide auto-enable features.
