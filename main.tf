@@ -1,25 +1,34 @@
-## Classic inspector requires you to run the assesmnet manually from the console.
+data "aws_caller_identity" "calling_account" {}
 
-## AWS_Inspector module starting.
-
-module "aws_inspector_classic" {
-  count               = var.aws_inspector_classic_enable == true ? 1 : 0
-  source              = "./modules/aws_inspector_classic"
-  resource_group_tags = { "Name" = "Inspector_check" }
-  event               = var.event
-  duration            = var.duration
+resource "aws_inspector2_delegated_admin_account" "admin_account" {
+  count      = var.initialize_delegated_admin_account ? 1 : 0
+  account_id = data.aws_caller_identity.calling_account.id
 }
 
-module "aws_inspector_2" {
-  count                              = var.aws_inspector_2_enable == "true" ? 1 : 0
-  source                             = "./modules/aws_inspector_2"
-  initialize_delegated_admin_account = var.initialize_delegated_admin_account == true ? true : null
-  enable_delegated_admin_account     = var.enable_delegated_admin_account == true ? true : null
-  enabled_resources_admin_account    = var.enable_delegated_admin_account == true ? var.enabled_resources_admin_account : null
-  enable_member_accounts             = var.enable_member_accounts == true ? true : null
-  member_accounts                    = var.enable_member_accounts == true ? var.member_accounts : null
-  enabled_resources_member_account   = var.enable_member_accounts == true ? var.enabled_resources_member_account : null
-  auto_enable                        = var.auto_enable
-  enable_account_associate           = var.enable_account_associate == true ? true : null
-  account_associate                  = var.enable_account_associate == true ? var.account_associate : null
+resource "aws_inspector2_enabler" "enable_inspector_admin_account" {
+  count          = var.aws_inspector_2_enable ? 1 : 0
+  account_ids    = [data.aws_caller_identity.calling_account.account_id]
+  resource_types = var.enabled_resources_admin_account
+}
+
+resource "aws_inspector2_enabler" "enable_member_accounts" {
+  count          = var.enable_member_accounts ? 1 : 0
+  account_ids    = var.member_accounts
+  resource_types = var.enabled_resources_member_account
+}
+
+resource "aws_inspector2_organization_configuration" "example" {
+  count = var.auto_enable_member_accounts ? 1 : 0
+
+  auto_enable {
+    ec2         = contains(var.auto_enable, "EC2")
+    ecr         = contains(var.auto_enable, "ECR")
+    lambda      = contains(var.auto_enable, "LAMBDA")
+    lambda_code = contains(var.auto_enable, "LAMBDA_CODE")
+  }
+}
+
+resource "aws_inspector2_member_association" "example" {
+  count      = var.enable_account_associate ? 1 : 0
+  account_id = var.account_associate
 }
