@@ -24,7 +24,7 @@ A Terraform module to configure **Amazon Inspector 2** for continuous vulnerabil
 ___
 
 ## Usage
-
+```hcl
 module "aws_inspector_2" {
   source = "OT-CLOUD-KIT/terraform-aws-inspector"
 
@@ -44,6 +44,9 @@ module "aws_inspector_2" {
   enable_account_associate = false
   account_associate        = null
 }
+
+```
+___
 
 
  ## Resources
